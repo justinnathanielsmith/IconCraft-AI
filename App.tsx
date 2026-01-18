@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
-import { Loader2, Wand2, Sparkles, AlertCircle, History } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { IconStyle, GeneratedIcon, GenerationState } from './types';
 import { generateAppIcon } from './services/geminiService';
 import { IconPreview } from './components/IconPreview';
+import { KMPInstructions } from './components/KMPInstructions';
+import { IconEditor } from './components/IconEditor';
 
 const App: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<IconStyle>(IconStyle.MINIMALIST);
+  const [styleDescription, setStyleDescription] = useState<string>(IconStyle.MINIMALIST);
   const [generatedIcon, setGeneratedIcon] = useState<GeneratedIcon | null>(null);
   const [status, setStatus] = useState<GenerationState>({ isLoading: false, error: null });
   const [history, setHistory] = useState<GeneratedIcon[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [seedImage, setSeedImage] = useState<string | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update style description when style is selected
+  useEffect(() => {
+    setStyleDescription(selectedStyle);
+  }, [selectedStyle]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +30,7 @@ const App: React.FC = () => {
     setStatus({ isLoading: true, error: null });
 
     try {
-      const base64Image = await generateAppIcon(prompt, selectedStyle);
+      const base64Image = await generateAppIcon(prompt, styleDescription as IconStyle, seedImage || undefined);
       const newIcon: GeneratedIcon = {
         id: crypto.randomUUID(),
         imageUrl: base64Image,
@@ -28,7 +40,8 @@ const App: React.FC = () => {
       };
 
       setGeneratedIcon(newIcon);
-      setHistory(prev => [newIcon, ...prev].slice(0, 5)); // Keep last 5
+      setHistory(prev => [newIcon, ...prev].slice(0, 5));
+      setIsEditing(false);
     } catch (error) {
       setStatus({ 
         isLoading: false, 
@@ -39,15 +52,63 @@ const App: React.FC = () => {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setStatus({ isLoading: false, error: "File size must be less than 5MB" });
+      return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setSeedImage(event.target.result as string);
+        setStatus({ isLoading: false, error: null });
+      }
+    };
+
+    reader.onerror = () => {
+      setStatus({ isLoading: false, error: "Failed to read file" });
+    };
+
+    reader.readAsDataURL(file);
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleRemoveSeedImage = () => {
+    setSeedImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleUpdateIcon = (newImageUrl: string) => {
+    if (!generatedIcon) return;
+    const updatedIcon = { ...generatedIcon, imageUrl: newImageUrl };
+    setGeneratedIcon(updatedIcon);
+    setHistory(prev => prev.map(h => h.id === updatedIcon.id ? updatedIcon : h));
+    setIsEditing(false);
+  };
+
   const loadFromHistory = (icon: GeneratedIcon) => {
     setGeneratedIcon(icon);
     setPrompt(icon.prompt);
     setSelectedStyle(icon.style);
+    setIsEditing(false);
+  };
+
+  const getStyleDisplayName = (style: IconStyle) => {
+    const keys = Object.keys(IconStyle) as Array<keyof typeof IconStyle>;
+    const key = keys.find(k => IconStyle[k] === style);
+    return key ? key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' ') : 'Custom';
   };
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 pb-20">
-      {/* Header */}
       <header className="border-b border-slate-800 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -67,7 +128,6 @@ const App: React.FC = () => {
       <main className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           
-          {/* Left Column: Input Form */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-4">
               <h2 className="text-3xl font-bold leading-tight">
@@ -75,73 +135,144 @@ const App: React.FC = () => {
                 <span className="text-indigo-400">in seconds.</span>
               </h2>
               <p className="text-slate-400">
-                Describe your app and let AI create professional assets for Android and iOS.
+                Describe your app or provide a reference image, and let AI create professional assets for Android and iOS.
               </p>
             </div>
 
-            <form onSubmit={handleGenerate} className="space-y-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-300">
-                  What is your app about?
-                </label>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g. A fast rocket delivery service, red and white theme..."
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none h-32"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-300">
-                  Choose a style
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {(Object.values(IconStyle) as IconStyle[]).map((style) => (
-                    <button
-                      key={style}
-                      type="button"
-                      onClick={() => setSelectedStyle(style)}
-                      className={`text-left text-xs p-3 rounded-lg border transition-all ${
-                        selectedStyle === style
-                          ? 'bg-indigo-600/20 border-indigo-500 text-white'
-                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
-                      }`}
-                    >
-                      {style.split(',')[0]}
-                    </button>
-                  ))}
+            <div className="space-y-6">
+              <form onSubmit={handleGenerate} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-300">
+                    What is your app about?
+                  </label>
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="e.g. A fast rocket delivery service, red and white theme..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none h-24"
+                    required
+                  />
                 </div>
-              </div>
 
-              <button
-                type="submit"
-                disabled={status.isLoading || !prompt.trim()}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
-              >
-                {status.isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin" size={20} />
-                    Generating Assets...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 size={20} />
-                    Generate Icon
-                  </>
-                )}
-              </button>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                      Choose a style
+                    </label>
+                    <div className="relative group">
+                      <select
+                        value={selectedStyle}
+                        onChange={(e) => setSelectedStyle(e.target.value as IconStyle)}
+                        className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer outline-none pr-10"
+                      >
+                        {(Object.values(IconStyle) as IconStyle[]).map((style) => (
+                          <option key={style} value={style} className="bg-slate-900 text-slate-200">
+                            {getStyleDisplayName(style)}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                        <ChevronDown size={18} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seed Image Upload Section */}
+                  <div className="space-y-2">
+                    <label className="flex items-center justify-between text-sm font-medium text-slate-300">
+                      <span>Reference Image (Optional)</span>
+                      {seedImage && (
+                        <span className="text-xs text-indigo-400 font-normal">Image selected</span>
+                      )}
+                    </label>
+                    
+                    {!seedImage ? (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-24 border border-dashed border-slate-700 rounded-xl bg-slate-900/50 hover:bg-slate-800 hover:border-slate-500 transition-all flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-300 group"
+                      >
+                        <Upload size={20} className="group-hover:scale-110 transition-transform" />
+                        <span className="text-xs">Upload image to seed generation</span>
+                      </button>
+                    ) : (
+                      <div className="relative w-full h-32 bg-slate-900 rounded-xl border border-indigo-500/50 overflow-hidden group">
+                        <img 
+                          src={seedImage} 
+                          alt="Reference" 
+                          className="w-full h-full object-contain p-2" 
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                           <button 
+                            type="button"
+                            onClick={handleRemoveSeedImage}
+                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors flex items-center gap-2 px-4 shadow-lg"
+                          >
+                            <X size={16} />
+                            <span className="text-xs font-semibold">Remove Image</span>
+                          </button>
+                        </div>
+                        <div className="absolute top-2 left-2 bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm pointer-events-none">
+                          REF
+                        </div>
+                      </div>
+                    )}
+                    <input 
+                      ref={fileInputRef} 
+                      type="file" 
+                      className="hidden" 
+                      onChange={handleFileUpload} 
+                      accept="image/png, image/jpeg, image/webp"
+                    />
+                    <p className="text-[10px] text-slate-500">
+                      The AI will use this image as inspiration for composition and subject.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 animate-fade-in">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                        <MessageSquare size={14} />
+                        Customize Style Instructions
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      value={styleDescription}
+                      onChange={(e) => setStyleDescription(e.target.value)}
+                      placeholder="Customize style instructions..."
+                      className="w-full bg-slate-900 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs text-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={status.isLoading || !prompt.trim()}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  {status.isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Generating Assets...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 size={20} />
+                      {seedImage ? 'Generate from Reference' : 'Generate Icon'}
+                    </>
+                  )}
+                </button>
+              </form>
 
               {status.error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-center gap-3 text-red-400 text-sm">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-center gap-3 text-red-400 text-sm animate-fade-in">
                   <AlertCircle size={18} />
                   {status.error}
                 </div>
               )}
-            </form>
+            </div>
 
-            {/* History Section */}
             {history.length > 0 && (
               <div className="pt-8 border-t border-slate-800">
                 <div className="flex items-center gap-2 mb-4 text-slate-400">
@@ -167,18 +298,39 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: Preview Area */}
           <div className="lg:col-span-7">
             {generatedIcon ? (
-              <IconPreview icon={generatedIcon} />
+              <div className="space-y-12 animate-fade-in">
+                <div className="relative">
+                  {!isEditing && (
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="absolute top-4 right-4 z-20 flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-full text-xs font-semibold backdrop-blur-md transition-all active:scale-95 shadow-lg"
+                    >
+                      <Edit3 size={14} />
+                      Edit Icon
+                    </button>
+                  )}
+                  {isEditing ? (
+                    <IconEditor 
+                      imageUrl={generatedIcon.imageUrl} 
+                      onSave={handleUpdateIcon} 
+                      onCancel={() => setIsEditing(false)} 
+                    />
+                  ) : (
+                    <IconPreview icon={generatedIcon} />
+                  )}
+                </div>
+                {!isEditing && <KMPInstructions />}
+              </div>
             ) : (
-              <div className="h-full min-h-[500px] flex flex-col items-center justify-center text-slate-500 bg-slate-800/30 border border-dashed border-slate-700 rounded-3xl p-8 text-center">
-                 <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6">
+              <div className="h-full min-h-[500px] flex flex-col items-center justify-center text-slate-500 bg-slate-800/30 border border-dashed border-slate-700 rounded-3xl p-8 text-center animate-fade-in">
+                 <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-inner">
                     <Sparkles className="text-slate-600" size={32} />
                  </div>
                  <h3 className="text-xl font-medium text-slate-300 mb-2">Ready to create?</h3>
                  <p className="max-w-md">
-                   Enter a prompt and select a style to generate high-quality icons for your next project.
+                   Enter a prompt or upload a reference image to generate high-quality icons for your next project.
                  </p>
               </div>
             )}
