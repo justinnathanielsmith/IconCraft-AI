@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GeneratedIcon } from '../types';
-import { Smartphone, Monitor, Loader2, Archive, Apple, Square } from 'lucide-react';
+import { Smartphone, Monitor, Loader2, Archive, Apple, Square, Zap } from 'lucide-react';
 import JSZip from 'jszip';
 
 interface IconPreviewProps {
@@ -178,7 +178,7 @@ Thank you for using IconCraft AI!`;
       </div>
 
       {/* Platform Previews Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {/* iOS Preview */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-4 text-slate-400">
@@ -214,6 +214,28 @@ Thank you for using IconCraft AI!`;
               <div className="w-[52px] h-[52px] rounded-full bg-blue-500/80"></div>
               <span className="text-[10px] text-slate-100 drop-shadow-md">Chrome</span>
             </div>
+          </div>
+        </div>
+
+        {/* Android Splash Screen Preview */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-4 text-slate-400">
+            <Zap size={18} />
+            <h3 className="font-semibold text-xs uppercase tracking-widest">Android Splash</h3>
+          </div>
+          <div className="flex items-center justify-center bg-slate-900 rounded-xl border border-slate-800 h-48 relative overflow-hidden">
+             {/* Simulating a phone screen */}
+             <div className="w-32 h-full bg-[#0a0a0a] relative flex items-center justify-center border-x-[1px] border-slate-800">
+                {/* Simulated status bar */}
+                <div className="absolute top-2 w-full px-3 flex justify-between opacity-50">
+                    <div className="w-8 h-1 bg-white rounded-full"></div>
+                    <div className="w-2 h-2 rounded-full border border-white"></div>
+                </div>
+                {/* The splash icon (Adaptive) */}
+                <div className="relative z-10 flex flex-col items-center animate-pulse">
+                    <img src={icon.imageUrl} alt="Splash Icon" className="w-16 h-16 rounded-full shadow-lg mb-4" />
+                </div>
+             </div>
           </div>
         </div>
 

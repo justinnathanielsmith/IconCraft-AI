@@ -6,6 +6,32 @@ import { IconPreview } from './components/IconPreview';
 import { KMPInstructions } from './components/KMPInstructions';
 import { IconEditor } from './components/IconEditor';
 
+// Mapping styles to representative preview images (Unsplash)
+const STYLE_PREVIEWS: Record<IconStyle, string> = {
+  [IconStyle.MINIMALIST]: "https://images.unsplash.com/photo-1616469829941-c7200edec809?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.NEUMORPHIC]: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.GRADIENT]: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.PIXEL_ART]: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.REALISTIC]: "https://images.unsplash.com/photo-1555421689-491a97ff2040?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.SKETCH]: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.GLASSMORPHISM]: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.CLAYMORPHIC]: "https://images.unsplash.com/photo-1517849645529-147f273c913d?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.CYBERPUNK]: "https://images.unsplash.com/photo-1515630278258-407f66498911?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.ISOMETRIC]: "https://images.unsplash.com/photo-1529339031639-5395864a6018?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.KAWAII]: "https://images.unsplash.com/photo-1556983852-431c377955f0?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.CORPORATE]: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.VINTAGE_BADGE]: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.STAINED_GLASS]: "https://images.unsplash.com/photo-1502054824840-5f006020ac83?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.ORIGAMI]: "https://images.unsplash.com/photo-1503525547514-91eb7fab7092?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.WATERCOLOR]: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.HOLOGRAPHIC]: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.CHALKBOARD]: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.POP_ART]: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.WOOD_CARVED]: "https://images.unsplash.com/photo-1610219760738-111d4e74747c?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.FUTURISTIC_UI]: "https://images.unsplash.com/photo-1514820402329-de527fdd2d08?auto=format&fit=crop&w=400&q=80",
+  [IconStyle.GUMMY]: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80",
+};
+
 const App: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<IconStyle>(IconStyle.MINIMALIST);
@@ -173,6 +199,21 @@ const App: React.FC = () => {
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                         <ChevronDown size={18} />
+                      </div>
+                    </div>
+
+                    {/* Style Visual Preview */}
+                    <div className="relative group overflow-hidden rounded-xl border border-slate-700 h-24 mt-2 transition-all hover:border-indigo-500/50">
+                      <img 
+                        src={STYLE_PREVIEWS[selectedStyle] || "https://images.unsplash.com/photo-1634152962476-4b8a00e1915c?w=400&q=80"} 
+                        alt={selectedStyle}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-80"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent flex flex-col justify-center px-5 pointer-events-none">
+                        <h3 className="text-white font-bold text-lg">{getStyleDisplayName(selectedStyle)}</h3>
+                        <p className="text-slate-400 text-xs max-w-[220px] line-clamp-2 leading-relaxed opacity-90">
+                          {selectedStyle}
+                        </p>
                       </div>
                     </div>
                   </div>
