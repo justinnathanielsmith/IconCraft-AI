@@ -41,6 +41,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<GeneratedIcon[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [seedImage, setSeedImage] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,12 +79,14 @@ const App: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
       setStatus({ isLoading: false, error: "File size must be less than 5MB" });
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setStatus({ isLoading: false, error: "Only image files are allowed" });
       return;
     }
 
@@ -101,8 +104,34 @@ const App: React.FC = () => {
     };
 
     reader.readAsDataURL(file);
-    // Reset input so same file can be selected again
-    e.target.value = '';
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+      e.target.value = '';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
+    }
   };
 
   const handleRemoveSeedImage = () => {
@@ -231,10 +260,17 @@ const App: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-24 border border-dashed border-slate-700 rounded-xl bg-slate-900/50 hover:bg-slate-800 hover:border-slate-500 transition-all flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-300 group"
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`w-full h-24 border border-dashed rounded-xl transition-all flex flex-col items-center justify-center gap-2 group ${
+                          isDragging
+                            ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
+                            : 'border-slate-700 bg-slate-900/50 hover:bg-slate-800 hover:border-slate-500 text-slate-500 hover:text-slate-300'
+                        }`}
                       >
-                        <Upload size={20} className="group-hover:scale-110 transition-transform" />
-                        <span className="text-xs">Upload image to seed generation</span>
+                        <Upload size={20} className={`transition-transform ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`} />
+                        <span className="text-xs">{isDragging ? 'Drop image here' : 'Upload image to seed generation'}</span>
                       </button>
                     ) : (
                       <div className="relative w-full h-32 bg-slate-900 rounded-xl border border-indigo-500/50 overflow-hidden group">
