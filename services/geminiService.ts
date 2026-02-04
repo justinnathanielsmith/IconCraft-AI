@@ -1,7 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 import { IconStyle } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI | null = null;
+
+const getAiClient = () => {
+  if (!ai) {
+    const apiKey = process.env.API_KEY || '';
+    if (!apiKey) {
+      console.warn("API Key is missing. Generation will fail.");
+    }
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+};
 
 const getStyleDetails = (style: IconStyle): string => {
   // Group styles to provide specific aesthetic guidance
@@ -54,12 +65,22 @@ const getStyleDetails = (style: IconStyle): string => {
     - COMPOSITION: Balanced and iconic.`;
 };
 
+export const validateInputs = (prompt: string, style: string) => {
+  if (prompt.length > 300) {
+    throw new Error("Prompt is too long (max 300 chars)");
+  }
+  if (style.length > 100) {
+    throw new Error("Style description is too long (max 100 chars)");
+  }
+};
+
 export const generateAppIcon = async (
   prompt: string, 
   style: IconStyle,
   seedImage?: string
 ): Promise<string> => {
   try {
+    validateInputs(prompt, String(style));
     const styleInstructions = getStyleDetails(style);
 
     const textPrompt = `
@@ -105,7 +126,8 @@ export const generateAppIcon = async (
       parts.push({ text: textPrompt });
     }
 
-    const response = await ai.models.generateContent({
+    const client = getAiClient();
+    const response = await client.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: parts,
@@ -137,7 +159,8 @@ export const editIconBackground = async (
     // Extract base64 data without the prefix
     const data = base64Image.split(',')[1];
     
-    const response = await ai.models.generateContent({
+    const client = getAiClient();
+    const response = await client.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: [

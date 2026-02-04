@@ -53,6 +53,16 @@ const App: React.FC = () => {
     e.preventDefault();
     if (!prompt.trim()) return;
 
+    if (prompt.length > 300) {
+      setStatus({ isLoading: false, error: "Prompt is too long (max 300 chars)" });
+      return;
+    }
+
+    if (styleDescription.length > 100) {
+      setStatus({ isLoading: false, error: "Style description is too long (max 100 chars)" });
+      return;
+    }
+
     setStatus({ isLoading: true, error: null });
 
     try {
@@ -177,6 +187,7 @@ const App: React.FC = () => {
                     placeholder="e.g. A fast rocket delivery service, red and white theme..."
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none h-24"
                     required
+                    maxLength={300}
                   />
                 </div>
 
@@ -283,6 +294,7 @@ const App: React.FC = () => {
                       onChange={(e) => setStyleDescription(e.target.value)}
                       placeholder="Customize style instructions..."
                       className="w-full bg-slate-900 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs text-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                      maxLength={100}
                     />
                   </div>
                 </div>
