@@ -1,7 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { IconStyle } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize with a fallback to prevent crash on load if key is missing
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || 'dummy_key' });
 
 const getStyleDetails = (style: IconStyle): string => {
   // Group styles to provide specific aesthetic guidance
