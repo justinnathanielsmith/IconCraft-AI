@@ -9,7 +9,8 @@ interface IconPreviewProps {
 
 type FileFormat = 'PNG' | 'JPG' | 'SVG' | 'LINUX' | 'ICO' | 'ICNS' | 'WEBP';
 
-export const IconPreview: React.FC<IconPreviewProps> = ({ icon }) => {
+// Memoized to prevent re-renders when parent state (like prompt input) changes but icon is stable
+export const IconPreview: React.FC<IconPreviewProps> = React.memo(({ icon }) => {
   const [isZipping, setIsZipping] = useState(false);
 
   const generateAsset = async (targetFormat: FileFormat, img: HTMLImageElement): Promise<{ dataUrl: string, filename: string }> => {
@@ -279,4 +280,4 @@ Thank you for using IconCraft AI!`;
       </div>
     </div>
   );
-};
+});
