@@ -45,11 +45,6 @@ const App: React.FC = () => {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Update style description when style is selected
-  useEffect(() => {
-    setStyleDescription(selectedStyle);
-  }, [selectedStyle]);
-
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
@@ -163,6 +158,7 @@ const App: React.FC = () => {
     setGeneratedIcon(icon);
     setPrompt(icon.prompt);
     setSelectedStyle(icon.style);
+    setStyleDescription(icon.style);
     setIsEditing(false);
   };
 
@@ -228,7 +224,11 @@ const App: React.FC = () => {
                     <div className="relative group">
                       <select
                         value={selectedStyle}
-                        onChange={(e) => setSelectedStyle(e.target.value as IconStyle)}
+                        onChange={(e) => {
+                          const style = e.target.value as IconStyle;
+                          setSelectedStyle(style);
+                          setStyleDescription(style);
+                        }}
                         className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer outline-none pr-10"
                       >
                         {(Object.values(IconStyle) as IconStyle[]).map((style) => (
