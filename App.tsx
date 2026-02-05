@@ -207,9 +207,14 @@ const App: React.FC = () => {
             <div className="space-y-6">
               <form onSubmit={handleGenerate} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-300">
-                    What is your app about?
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="block text-sm font-medium text-slate-300">
+                      What is your app about?
+                    </label>
+                    <span className="text-xs text-slate-500 font-mono">
+                      {prompt.length}/300
+                    </span>
+                  </div>
                   <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
@@ -323,6 +328,9 @@ const App: React.FC = () => {
                         <MessageSquare size={14} />
                         Customize Style Instructions
                       </label>
+                      <span className="text-xs text-slate-500 font-mono">
+                        {styleDescription.length}/100
+                      </span>
                     </div>
                     <input
                       type="text"
@@ -373,13 +381,15 @@ const App: React.FC = () => {
                     <button
                       key={item.id}
                       onClick={() => loadFromHistory(item)}
+                      aria-label={`Load icon: ${item.prompt}`}
+                      title={`${item.prompt} (${getStyleDisplayName(item.style)})`}
                       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
                         generatedIcon?.id === item.id 
                           ? 'border-indigo-500 ring-2 ring-indigo-500/20' 
                           : 'border-slate-700 hover:border-slate-500'
                       }`}
                     >
-                      <img src={item.imageUrl} alt="History" className="w-full h-full object-cover" />
+                      <img src={item.imageUrl} alt={item.prompt} className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
