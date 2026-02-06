@@ -373,13 +373,15 @@ const App: React.FC = () => {
                     <button
                       key={item.id}
                       onClick={() => loadFromHistory(item)}
+                      aria-label={`Load icon: ${item.prompt}`}
+                      title={item.prompt}
                       className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
                         generatedIcon?.id === item.id 
                           ? 'border-indigo-500 ring-2 ring-indigo-500/20' 
                           : 'border-slate-700 hover:border-slate-500'
                       }`}
                     >
-                      <img src={item.imageUrl} alt="History" className="w-full h-full object-cover" />
+                      <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
