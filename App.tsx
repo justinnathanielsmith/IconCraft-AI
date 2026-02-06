@@ -6,6 +6,13 @@ import { IconPreview } from './components/IconPreview';
 import { KMPInstructions } from './components/KMPInstructions';
 import { IconEditor } from './components/IconEditor';
 
+// Pre-calculate display names for O(1) lookup
+const STYLE_DISPLAY_NAMES: Record<string, string> = Object.keys(IconStyle).reduce((acc, key) => {
+  const styleValue = IconStyle[key as keyof typeof IconStyle];
+  acc[styleValue] = key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' ');
+  return acc;
+}, {} as Record<string, string>);
+
 // Mapping styles to representative preview images (Unsplash)
 const STYLE_PREVIEWS: Record<IconStyle, string> = {
   [IconStyle.MINIMALIST]: "https://images.unsplash.com/photo-1616469829941-c7200edec809?auto=format&fit=crop&w=400&q=80",
@@ -166,11 +173,7 @@ const App: React.FC = () => {
     setIsEditing(false);
   };
 
-  const getStyleDisplayName = (style: IconStyle) => {
-    const keys = Object.keys(IconStyle) as Array<keyof typeof IconStyle>;
-    const key = keys.find(k => IconStyle[k] === style);
-    return key ? key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' ') : 'Custom';
-  };
+  const getStyleDisplayName = (style: IconStyle) => STYLE_DISPLAY_NAMES[style] || 'Custom';
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 pb-20">
@@ -231,9 +234,9 @@ const App: React.FC = () => {
                         onChange={(e) => setSelectedStyle(e.target.value as IconStyle)}
                         className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer outline-none pr-10"
                       >
-                        {(Object.values(IconStyle) as IconStyle[]).map((style) => (
-                          <option key={style} value={style} className="bg-slate-900 text-slate-200">
-                            {getStyleDisplayName(style)}
+                        {(Object.keys(IconStyle) as Array<keyof typeof IconStyle>).map((key) => (
+                          <option key={key} value={IconStyle[key]} className="bg-slate-900 text-slate-200">
+                            {STYLE_DISPLAY_NAMES[IconStyle[key]]}
                           </option>
                         ))}
                       </select>
