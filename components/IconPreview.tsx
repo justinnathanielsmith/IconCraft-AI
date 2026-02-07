@@ -9,6 +9,13 @@ interface IconPreviewProps {
 
 type FileFormat = 'PNG' | 'JPG' | 'SVG' | 'LINUX' | 'ICO' | 'ICNS' | 'WEBP';
 
+// Helper to prevent Markdown Injection in generated README
+const sanitizeMarkdown = (text: string): string => {
+  // Escape characters that have special meaning in Markdown to prevent injection attacks
+  // (e.g. preventing a prompt from creating malicious links or formatting in the README)
+  return text.replace(/[\\`*_{}[\]()#+.!<>~|\-]/g, '\\$&');
+};
+
 // Memoized to prevent re-renders when parent state (like prompt input) changes but icon is stable
 export const IconPreview: React.FC<IconPreviewProps> = React.memo(({ icon }) => {
   const [isZipping, setIsZipping] = useState(false);
@@ -91,8 +98,8 @@ This package contains your generated icon in multiple formats for different plat
 6. **JPG**: Compressed version with a white background. Useful for profile pictures or platforms that don't support transparency.
 
 ## App Details:
-- **Prompt**: ${icon.prompt}
-- **Style**: ${icon.style}
+- **Prompt**: ${sanitizeMarkdown(icon.prompt)}
+- **Style**: ${sanitizeMarkdown(icon.style)}
 - **Generated**: ${new Date(icon.createdAt).toLocaleString()}
 
 Thank you for using IconCraft AI!`;
