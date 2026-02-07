@@ -276,6 +276,7 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
                 onClick={() => updateState({ bgColor: color })}
                 className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${currentState.bgColor === color ? 'border-white scale-110 shadow-lg shadow-white/10' : 'border-transparent'}`}
                 style={{ backgroundColor: color }}
+                aria-label={`Set background color to ${color}`}
               />
             ))}
           </div>
@@ -284,42 +285,42 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-800 pt-5">
            <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <label htmlFor="brightness-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Sun size={14} /> Brightness
               </label>
               <span className="text-[10px] text-slate-400">{currentState.brightness}%</span>
             </div>
-            <input type="range" min="50" max="150" value={currentState.brightness} onChange={(e) => updateState({ brightness: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input id="brightness-slider" type="range" min="50" max="150" value={currentState.brightness} onChange={(e) => updateState({ brightness: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
           </div>
           
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <label htmlFor="contrast-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Contrast size={14} /> Contrast
               </label>
               <span className="text-[10px] text-slate-400">{currentState.contrast}%</span>
             </div>
-            <input type="range" min="50" max="150" value={currentState.contrast} onChange={(e) => updateState({ contrast: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input id="contrast-slider" type="range" min="50" max="150" value={currentState.contrast} onChange={(e) => updateState({ contrast: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <label htmlFor="saturation-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Droplets size={14} /> Saturation
               </label>
               <span className="text-[10px] text-slate-400">{currentState.saturation}%</span>
             </div>
-            <input type="range" min="0" max="200" value={currentState.saturation} onChange={(e) => updateState({ saturation: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input id="saturation-slider" type="range" min="0" max="200" value={currentState.saturation} onChange={(e) => updateState({ saturation: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <label htmlFor="zoom-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Maximize size={14} /> Zoom
               </label>
               <span className="text-[10px] text-slate-400">{currentState.zoom.toFixed(2)}x</span>
             </div>
-            <input type="range" min="0.5" max="2" step="0.01" value={currentState.zoom} onChange={(e) => updateState({ zoom: parseFloat(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input id="zoom-slider" type="range" min="0.5" max="2" step="0.01" value={currentState.zoom} onChange={(e) => updateState({ zoom: parseFloat(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
           </div>
         </div>
 
