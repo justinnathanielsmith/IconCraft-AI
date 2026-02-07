@@ -44,16 +44,26 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
   // Function to push new state to history
   const pushState = useCallback((newState: EditorState) => {
     setHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      return [...newHistory, newState].slice(-50); // Keep last 50 steps
+      const newHistory = [...prev.slice(0, historyIndex + 1), newState];
+      return newHistory.slice(-50); // Keep last 50 steps
     });
-    setHistoryIndex(prev => prev + 1);
+    setHistoryIndex(prev => Math.min(prev + 1, 49));
     setCurrentState(newState);
   }, [historyIndex]);
 
   const updateState = (updates: Partial<EditorState>) => {
     const newState = { ...currentState, ...updates };
     pushState(newState);
+  };
+
+  // Performance Optimization: Update visual state without pushing to history (for sliders)
+  const handleSliderChange = (updates: Partial<EditorState>) => {
+    setCurrentState(prev => ({ ...prev, ...updates }));
+  };
+
+  // Commit the current state to history (on interaction end)
+  const commitCurrentState = () => {
+    pushState(currentState);
   };
 
   const handleUndo = useCallback(() => {
@@ -289,7 +299,17 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
               </label>
               <span className="text-[10px] text-slate-400">{currentState.brightness}%</span>
             </div>
-            <input type="range" min="50" max="150" value={currentState.brightness} onChange={(e) => updateState({ brightness: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input
+              type="range"
+              min="50"
+              max="150"
+              value={currentState.brightness}
+              onChange={(e) => handleSliderChange({ brightness: parseInt(e.target.value) })}
+              onMouseUp={commitCurrentState}
+              onTouchEnd={commitCurrentState}
+              onKeyUp={commitCurrentState}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
           </div>
           
           <div className="space-y-3">
@@ -299,7 +319,17 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
               </label>
               <span className="text-[10px] text-slate-400">{currentState.contrast}%</span>
             </div>
-            <input type="range" min="50" max="150" value={currentState.contrast} onChange={(e) => updateState({ contrast: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input
+              type="range"
+              min="50"
+              max="150"
+              value={currentState.contrast}
+              onChange={(e) => handleSliderChange({ contrast: parseInt(e.target.value) })}
+              onMouseUp={commitCurrentState}
+              onTouchEnd={commitCurrentState}
+              onKeyUp={commitCurrentState}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
           </div>
 
           <div className="space-y-3">
@@ -309,7 +339,17 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
               </label>
               <span className="text-[10px] text-slate-400">{currentState.saturation}%</span>
             </div>
-            <input type="range" min="0" max="200" value={currentState.saturation} onChange={(e) => updateState({ saturation: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input
+              type="range"
+              min="0"
+              max="200"
+              value={currentState.saturation}
+              onChange={(e) => handleSliderChange({ saturation: parseInt(e.target.value) })}
+              onMouseUp={commitCurrentState}
+              onTouchEnd={commitCurrentState}
+              onKeyUp={commitCurrentState}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
           </div>
 
           <div className="space-y-3">
@@ -319,7 +359,18 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
               </label>
               <span className="text-[10px] text-slate-400">{currentState.zoom.toFixed(2)}x</span>
             </div>
-            <input type="range" min="0.5" max="2" step="0.01" value={currentState.zoom} onChange={(e) => updateState({ zoom: parseFloat(e.target.value) })} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.01"
+              value={currentState.zoom}
+              onChange={(e) => handleSliderChange({ zoom: parseFloat(e.target.value) })}
+              onMouseUp={commitCurrentState}
+              onTouchEnd={commitCurrentState}
+              onKeyUp={commitCurrentState}
+              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            />
           </div>
         </div>
 
