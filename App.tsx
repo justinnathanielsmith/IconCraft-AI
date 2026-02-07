@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon, Key } from 'lucide-react';
 import { IconStyle, GeneratedIcon, GenerationState } from './types';
 import { generateAppIcon } from './services/geminiService';
 import { IconPreview } from './components/IconPreview';
 import { KMPInstructions } from './components/KMPInstructions';
 import { IconEditor } from './components/IconEditor';
+
+// Pre-calculate display names for O(1) lookup
+const STYLE_DISPLAY_NAMES: Record<string, string> = Object.keys(IconStyle).reduce((acc, key) => {
+  const styleValue = IconStyle[key as keyof typeof IconStyle];
+  acc[styleValue] = key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' ');
+  return acc;
+}, {} as Record<string, string>);
 
 // Mapping styles to representative preview images (Unsplash)
 const STYLE_PREVIEWS: Record<IconStyle, string> = {
@@ -44,11 +51,6 @@ const App: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Update style description when style is selected
-  useEffect(() => {
-    setStyleDescription(selectedStyle);
-  }, [selectedStyle]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,14 +165,11 @@ const App: React.FC = () => {
     setGeneratedIcon(icon);
     setPrompt(icon.prompt);
     setSelectedStyle(icon.style);
+    setStyleDescription(icon.style);
     setIsEditing(false);
   };
 
-  const getStyleDisplayName = (style: IconStyle) => {
-    const keys = Object.keys(IconStyle) as Array<keyof typeof IconStyle>;
-    const key = keys.find(k => IconStyle[k] === style);
-    return key ? key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' ') : 'Custom';
-  };
+  const getStyleDisplayName = (style: IconStyle) => STYLE_DISPLAY_NAMES[style] || 'Custom';
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 pb-20">
@@ -184,8 +183,15 @@ const App: React.FC = () => {
               IconCraft AI
             </h1>
           </div>
-          <div className="text-xs text-slate-500 font-mono border border-slate-800 rounded-full px-3 py-1">
-            Powered by Gemini
+          <div className="flex items-center gap-2">
+            <Key size={16} className="text-slate-500" />
+            <input
+              type="password"
+              placeholder="Enter API Key"
+              className="bg-transparent border border-slate-700 rounded-full px-3 py-1 text-xs text-slate-400 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-32 focus:w-48 transition-all"
+              onChange={(e) => localStorage.setItem('GEMINI_API_KEY', e.target.value)}
+              defaultValue={localStorage.getItem('GEMINI_API_KEY') || ''}
+            />
           </div>
         </div>
       </header>
@@ -233,12 +239,16 @@ const App: React.FC = () => {
                     <div className="relative group">
                       <select
                         value={selectedStyle}
-                        onChange={(e) => setSelectedStyle(e.target.value as IconStyle)}
+                        onChange={(e) => {
+                          const style = e.target.value as IconStyle;
+                          setSelectedStyle(style);
+                          setStyleDescription(style);
+                        }}
                         className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer outline-none pr-10"
                       >
-                        {(Object.values(IconStyle) as IconStyle[]).map((style) => (
-                          <option key={style} value={style} className="bg-slate-900 text-slate-200">
-                            {getStyleDisplayName(style)}
+                        {(Object.keys(IconStyle) as Array<keyof typeof IconStyle>).map((key) => (
+                          <option key={key} value={IconStyle[key]} className="bg-slate-900 text-slate-200">
+                            {STYLE_DISPLAY_NAMES[IconStyle[key]]}
                           </option>
                         ))}
                       </select>

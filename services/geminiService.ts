@@ -2,14 +2,18 @@ import { GoogleGenAI } from "@google/genai";
 import { IconStyle } from "../types";
 
 let ai: GoogleGenAI | null = null;
+let currentKey: string | null = null;
 
 const getAiClient = () => {
-  if (!ai) {
-    const apiKey = process.env.API_KEY || '';
-    if (!apiKey) {
-      console.warn("API Key is missing. Generation will fail.");
-    }
+  const apiKey = localStorage.getItem('GEMINI_API_KEY') || '';
+  if (!apiKey) {
+    throw new Error("API Key is missing. Please click the key icon in the top right to set it.");
+  }
+
+  // Re-initialize if key changed or not set
+  if (!ai || currentKey !== apiKey) {
     ai = new GoogleGenAI({ apiKey });
+    currentKey = apiKey;
   }
   return ai;
 };
