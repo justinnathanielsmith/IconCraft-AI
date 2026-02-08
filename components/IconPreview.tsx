@@ -118,7 +118,7 @@ Thank you for using IconCraft AI!`;
 
       const formats: FileFormat[] = ['PNG', 'JPG', 'WEBP', 'SVG', 'LINUX', 'ICO', 'ICNS'];
       
-      for (const f of formats) {
+      const generationPromises = formats.map(async (f) => {
         const { dataUrl, filename } = await generateAsset(f, img);
         let content: any;
         
@@ -132,7 +132,9 @@ Thank you for using IconCraft AI!`;
         }
         
         zip.file(filename, content, { base64: f !== 'SVG' });
-      }
+      });
+
+      await Promise.all(generationPromises);
 
       zip.file("README.md", generateReadme());
 
