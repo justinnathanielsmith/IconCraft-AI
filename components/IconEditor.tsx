@@ -265,12 +265,13 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
       <div className="space-y-6">
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+            <label htmlFor="bg-color-picker" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
               <Palette size={14} />
               Background Color
             </label>
             <div className="flex items-center gap-2">
                <input 
+                id="bg-color-picker"
                 type="color" 
                 value={currentState.bgColor}
                 onChange={(e) => updateState({ bgColor: e.target.value })}
