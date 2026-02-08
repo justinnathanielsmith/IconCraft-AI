@@ -5,3 +5,7 @@
 ## 2026-02-07 - Slider Performance Bottleneck
 **Learning:** Rapid input changes (like `input type="range"`) can trigger expensive state updates (array slicing/spreading) on every pixel of movement, causing memory spikes and UI lag.
 **Action:** Decouple visual state updates (`onChange`) from expensive data commits (`onMouseUp`/`onTouchEnd`), creating a manual "debounce" effect.
+
+## 2026-06-03 - Static Options Allocation Bottleneck
+**Learning:** Recreating constant options arrays (e.g., via `Object.keys(Enum).map(...)`) inside the render loop causes unnecessary O(N) allocations on every re-render (e.g., keystrokes).
+**Action:** Move static data generation outside the component scope or memoize it to ensure O(1) access during render.

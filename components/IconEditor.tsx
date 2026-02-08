@@ -16,6 +16,9 @@ interface EditorState {
   saturation: number;
 }
 
+// Pre-define color presets to avoid recreation on every render
+const PRESETS = ['#0f172a', '#ffffff', '#000000', '#6366f1', '#10b981', '#f43f5e'];
+
 export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -207,8 +210,6 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
     onSave(dataUrl);
   };
 
-  const presets = ['#0f172a', '#ffffff', '#000000', '#6366f1', '#10b981', '#f43f5e'];
-
   return (
     <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 space-y-6 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-2">
@@ -280,7 +281,7 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
             </div>
           </div>
           <div className="flex gap-2 justify-between">
-            {presets.map(color => (
+            {PRESETS.map(color => (
               <button
                 key={color}
                 onClick={() => updateState({ bgColor: color })}
