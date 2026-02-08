@@ -78,6 +78,11 @@ export const validateInputs = (prompt: string, style: string) => {
   }
 };
 
+const sanitizeInput = (text: string): string => {
+  // Replace newlines with spaces and escape double quotes to prevent prompt injection
+  return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
+};
+
 export const generateAppIcon = async (
   prompt: string, 
   style: IconStyle,
@@ -85,13 +90,17 @@ export const generateAppIcon = async (
 ): Promise<string> => {
   try {
     validateInputs(prompt, String(style));
-    const styleInstructions = getStyleDetails(style);
+
+    const cleanPrompt = sanitizeInput(prompt);
+    const cleanStyle = sanitizeInput(String(style));
+
+    const styleInstructions = getStyleDetails(cleanStyle as IconStyle);
 
     const textPrompt = `
       Design a professional, high-end mobile application icon optimized for iOS, Android Adaptive Icons, and Android Splash Screens.
       
-      CORE SUBJECT: ${prompt}
-      VISUAL STYLE: ${style}
+      CORE SUBJECT: ${cleanPrompt}
+      VISUAL STYLE: ${cleanStyle}
       
       STYLE SPECIFIC GUIDELINES:
       ${styleInstructions}
