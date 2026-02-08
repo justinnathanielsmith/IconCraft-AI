@@ -187,6 +187,7 @@ const App: React.FC = () => {
             <Key size={16} className="text-slate-500" />
             <input
               type="password"
+              aria-label="Gemini API Key"
               placeholder="Enter API Key"
               className="bg-transparent border border-slate-700 rounded-full px-3 py-1 text-xs text-slate-400 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-32 focus:w-48 transition-all"
               onChange={(e) => localStorage.setItem('GEMINI_API_KEY', e.target.value)}
@@ -214,7 +215,7 @@ const App: React.FC = () => {
               <form onSubmit={handleGenerate} className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <label className="block text-sm font-medium text-slate-300">
+                    <label htmlFor="prompt-input" className="block text-sm font-medium text-slate-300">
                       What is your app about?
                     </label>
                     <span className="text-xs text-slate-500 font-mono">
@@ -222,6 +223,7 @@ const App: React.FC = () => {
                     </span>
                   </div>
                   <textarea
+                    id="prompt-input"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="e.g. A fast rocket delivery service, red and white theme..."
@@ -233,11 +235,12 @@ const App: React.FC = () => {
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
+                    <label htmlFor="style-select" className="block text-sm font-medium text-slate-300">
                       Choose a style
                     </label>
                     <div className="relative group">
                       <select
+                        id="style-select"
                         value={selectedStyle}
                         onChange={(e) => {
                           const style = e.target.value as IconStyle;
@@ -334,7 +337,7 @@ const App: React.FC = () => {
 
                   <div className="space-y-2 animate-fade-in">
                     <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                      <label htmlFor="style-instructions" className="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider">
                         <MessageSquare size={14} />
                         Customize Style Instructions
                       </label>
@@ -343,6 +346,7 @@ const App: React.FC = () => {
                       </span>
                     </div>
                     <input
+                      id="style-instructions"
                       type="text"
                       value={styleDescription}
                       onChange={(e) => setStyleDescription(e.target.value)}
