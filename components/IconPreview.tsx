@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GeneratedIcon } from '../types';
-import { Smartphone, Monitor, Loader2, Archive, Apple, Square, Zap } from 'lucide-react';
+import { Smartphone, Monitor, Loader2, Archive, Apple, Square, Zap, Copy, Check } from 'lucide-react';
 import JSZip from 'jszip';
 
 interface IconPreviewProps {
@@ -19,6 +19,23 @@ const sanitizeMarkdown = (text: string): string => {
 // Memoized to prevent re-renders when parent state (like prompt input) changes but icon is stable
 export const IconPreview: React.FC<IconPreviewProps> = React.memo(({ icon }) => {
   const [isZipping, setIsZipping] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      const response = await fetch(icon.imageUrl);
+      const blob = await response.blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy image:", err);
+    }
+  };
 
   const generateAsset = async (targetFormat: FileFormat, img: HTMLImageElement): Promise<{ dataUrl: string, filename: string }> => {
     let downloadUrl = icon.imageUrl;
@@ -118,7 +135,7 @@ Thank you for using IconCraft AI!`;
 
       const formats: FileFormat[] = ['PNG', 'JPG', 'WEBP', 'SVG', 'LINUX', 'ICO', 'ICNS'];
       
-      for (const f of formats) {
+      const generationPromises = formats.map(async (f) => {
         const { dataUrl, filename } = await generateAsset(f, img);
         let content: any;
         
@@ -132,7 +149,9 @@ Thank you for using IconCraft AI!`;
         }
         
         zip.file(filename, content, { base64: f !== 'SVG' });
-      }
+      });
+
+      await Promise.all(generationPromises);
 
       zip.file("README.md", generateReadme());
 
@@ -171,14 +190,24 @@ Thank you for using IconCraft AI!`;
         </div>
 
         <div className="flex flex-col gap-4 items-center z-10 relative">
-          <button
-            onClick={handleDownloadAll}
-            disabled={isZipping}
-            className="flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-full transition-all disabled:opacity-50 shadow-xl shadow-indigo-500/20 active:scale-95 group"
-          >
-            {isZipping ? <Loader2 size={20} className="animate-spin" /> : <Archive size={20} className="group-hover:rotate-12 transition-transform" />}
-            Download All Formats (.zip)
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDownloadAll}
+              disabled={isZipping}
+              className="flex items-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-full transition-all disabled:opacity-50 shadow-xl shadow-indigo-500/20 active:scale-95 group"
+            >
+              {isZipping ? <Loader2 size={20} className="animate-spin" /> : <Archive size={20} className="group-hover:rotate-12 transition-transform" />}
+              Download All Formats (.zip)
+            </button>
+            <button
+              onClick={handleCopy}
+              className="bg-slate-700 hover:bg-slate-600 text-white p-4 rounded-full transition-all shadow-xl shadow-slate-900/20 active:scale-95 flex items-center justify-center"
+              aria-label="Copy image to clipboard"
+              title="Copy image to clipboard"
+            >
+              {copied ? <Check size={20} className="text-emerald-400" /> : <Copy size={20} />}
+            </button>
+          </div>
           <p className="text-slate-500 text-xs text-center max-w-[240px]">
             Includes high-res PNG, JPG, WEBP, SVG, platform-specific ICO/ICNS files, and a README.
           </p>

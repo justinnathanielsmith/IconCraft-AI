@@ -19,7 +19,7 @@ interface EditorState {
 // Pre-define color presets to avoid recreation on every render
 const PRESETS = ['#0f172a', '#ffffff', '#000000', '#6366f1', '#10b981', '#f43f5e'];
 
-export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCancel }) => {
+export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onSave, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Current active state
@@ -266,12 +266,13 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
       <div className="space-y-6">
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+            <label htmlFor="bg-color-picker" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
               <Palette size={14} />
               Background Color
             </label>
             <div className="flex items-center gap-2">
                <input 
+                id="bg-color-picker"
                 type="color" 
                 value={currentState.bgColor}
                 onChange={(e) => updateState({ bgColor: e.target.value })}
@@ -436,4 +437,4 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
       <canvas ref={canvasRef} width={1024} height={1024} className="hidden" />
     </div>
   );
-};
+});

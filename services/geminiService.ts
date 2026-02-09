@@ -69,6 +69,21 @@ const getStyleDetails = (style: IconStyle): string => {
     - COMPOSITION: Balanced and iconic.`;
 };
 
+/**
+ * Sanitizes input to prevent control character injection and prompt injection issues.
+ * Replaces triple quotes to maintain prompt delimiter integrity.
+ */
+export const sanitizeInput = (input: string): string => {
+  if (!input) return "";
+  // Remove control characters (ASCII 0-31, 127) except tab (9), newline (10), carriage return (13)
+  let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
+  // Replace triple quotes to prevent breaking out of delimiters
+  sanitized = sanitized.replace(/"""/g, "'''");
+
+  return sanitized.trim();
+};
+
 export const validateInputs = (prompt: string, style: string) => {
   if (prompt.length > 300) {
     throw new Error("Prompt is too long (max 300 chars)");
@@ -78,6 +93,11 @@ export const validateInputs = (prompt: string, style: string) => {
   }
 };
 
+const sanitizeInput = (text: string): string => {
+  // Replace newlines with spaces and escape double quotes to prevent prompt injection
+  return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
+};
+
 export const generateAppIcon = async (
   prompt: string, 
   style: IconStyle,
@@ -85,13 +105,19 @@ export const generateAppIcon = async (
 ): Promise<string> => {
   try {
     validateInputs(prompt, String(style));
-    const styleInstructions = getStyleDetails(style);
+
+    // Sanitize inputs to prevent injection
+    const sanitizedPrompt = sanitizeInput(prompt);
+    const sanitizedStyle = sanitizeInput(String(style));
+
+    // Use sanitized style for details lookup (enum values are safe from sanitization)
+    const styleInstructions = getStyleDetails(sanitizedStyle as IconStyle);
 
     const textPrompt = `
       Design a professional, high-end mobile application icon optimized for iOS, Android Adaptive Icons, and Android Splash Screens.
       
-      CORE SUBJECT: ${prompt}
-      VISUAL STYLE: ${style}
+      CORE SUBJECT: """${sanitizedPrompt}"""
+      VISUAL STYLE: """${sanitizedStyle}"""
       
       STYLE SPECIFIC GUIDELINES:
       ${styleInstructions}
