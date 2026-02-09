@@ -16,7 +16,7 @@ interface EditorState {
   saturation: number;
 }
 
-export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCancel }) => {
+export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onSave, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Current active state
@@ -436,4 +436,4 @@ export const IconEditor: React.FC<IconEditorProps> = ({ imageUrl, onSave, onCanc
       <canvas ref={canvasRef} width={1024} height={1024} className="hidden" />
     </div>
   );
-};
+});
