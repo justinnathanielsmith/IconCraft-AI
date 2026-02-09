@@ -13,8 +13,12 @@ const STYLE_DISPLAY_NAMES: Record<string, string> = Object.keys(IconStyle).reduc
   return acc;
 }, {} as Record<string, string>);
 
-// Hoist keys to avoid re-creation on every render
-const ICON_STYLE_KEYS = Object.keys(IconStyle) as Array<keyof typeof IconStyle>;
+// Pre-calculate style options for select input to avoid O(N) iteration on every render
+const STYLE_OPTIONS = (Object.keys(IconStyle) as Array<keyof typeof IconStyle>).map((key) => ({
+  key,
+  value: IconStyle[key],
+  label: STYLE_DISPLAY_NAMES[IconStyle[key]]
+}));
 
 // Mapping styles to representative preview images (Unsplash)
 const STYLE_PREVIEWS: Record<IconStyle, string> = {
@@ -254,9 +258,9 @@ const App: React.FC = () => {
                         }}
                         className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer outline-none pr-10"
                       >
-                        {ICON_STYLE_KEYS.map((key) => (
-                          <option key={key} value={IconStyle[key]} className="bg-slate-900 text-slate-200">
-                            {STYLE_DISPLAY_NAMES[IconStyle[key]]}
+                        {STYLE_OPTIONS.map((option) => (
+                          <option key={option.key} value={option.value} className="bg-slate-900 text-slate-200">
+                            {option.label}
                           </option>
                         ))}
                       </select>
