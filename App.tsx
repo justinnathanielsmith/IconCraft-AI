@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon, Key } from 'lucide-react';
 import { IconStyle, GeneratedIcon, GenerationState } from './types';
 import { generateAppIcon } from './services/geminiService';
@@ -153,13 +153,15 @@ const App: React.FC = () => {
     }
   };
 
-  const handleUpdateIcon = (newImageUrl: string) => {
+  const handleUpdateIcon = useCallback((newImageUrl: string) => {
     if (!generatedIcon) return;
     const updatedIcon = { ...generatedIcon, imageUrl: newImageUrl };
     setGeneratedIcon(updatedIcon);
     setHistory(prev => prev.map(h => h.id === updatedIcon.id ? updatedIcon : h));
     setIsEditing(false);
-  };
+  }, [generatedIcon]);
+
+  const handleCancelEdit = useCallback(() => setIsEditing(false), []);
 
   const loadFromHistory = (icon: GeneratedIcon) => {
     setGeneratedIcon(icon);
@@ -428,7 +430,7 @@ const App: React.FC = () => {
                     <IconEditor 
                       imageUrl={generatedIcon.imageUrl} 
                       onSave={handleUpdateIcon} 
-                      onCancel={() => setIsEditing(false)} 
+                      onCancel={handleCancelEdit}
                     />
                   ) : (
                     <IconPreview icon={generatedIcon} />
