@@ -292,6 +292,7 @@ const App: React.FC = () => {
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
+                        aria-label="Upload reference image"
                         className={`w-full h-24 border border-dashed rounded-xl transition-all flex flex-col items-center justify-center gap-2 group ${
                           isDragging
                             ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
@@ -308,7 +309,7 @@ const App: React.FC = () => {
                           alt="Reference" 
                           className="w-full h-full object-contain p-2" 
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
                            <button 
                             type="button"
                             onClick={handleRemoveSeedImage}
