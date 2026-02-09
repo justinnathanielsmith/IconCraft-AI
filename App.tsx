@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon, Key } from 'lucide-react';
 import { IconStyle, GeneratedIcon, GenerationState } from './types';
 import { generateAppIcon } from './services/geminiService';
@@ -12,6 +12,9 @@ const STYLE_DISPLAY_NAMES: Record<string, string> = Object.keys(IconStyle).reduc
   acc[styleValue] = key.charAt(0) + key.slice(1).toLowerCase().replace('_', ' ');
   return acc;
 }, {} as Record<string, string>);
+
+// Hoist keys to avoid re-creation on every render
+const ICON_STYLE_KEYS = Object.keys(IconStyle) as Array<keyof typeof IconStyle>;
 
 // Mapping styles to representative preview images (Unsplash)
 const STYLE_PREVIEWS: Record<IconStyle, string> = {
@@ -153,13 +156,15 @@ const App: React.FC = () => {
     }
   };
 
-  const handleUpdateIcon = (newImageUrl: string) => {
+  const handleUpdateIcon = useCallback((newImageUrl: string) => {
     if (!generatedIcon) return;
     const updatedIcon = { ...generatedIcon, imageUrl: newImageUrl };
     setGeneratedIcon(updatedIcon);
     setHistory(prev => prev.map(h => h.id === updatedIcon.id ? updatedIcon : h));
     setIsEditing(false);
-  };
+  }, [generatedIcon]);
+
+  const handleCancelEdit = useCallback(() => setIsEditing(false), []);
 
   const loadFromHistory = (icon: GeneratedIcon) => {
     setGeneratedIcon(icon);
@@ -249,7 +254,7 @@ const App: React.FC = () => {
                         }}
                         className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all cursor-pointer outline-none pr-10"
                       >
-                        {(Object.keys(IconStyle) as Array<keyof typeof IconStyle>).map((key) => (
+                        {ICON_STYLE_KEYS.map((key) => (
                           <option key={key} value={IconStyle[key]} className="bg-slate-900 text-slate-200">
                             {STYLE_DISPLAY_NAMES[IconStyle[key]]}
                           </option>
@@ -428,7 +433,7 @@ const App: React.FC = () => {
                     <IconEditor 
                       imageUrl={generatedIcon.imageUrl} 
                       onSave={handleUpdateIcon} 
-                      onCancel={() => setIsEditing(false)} 
+                      onCancel={handleCancelEdit}
                     />
                   ) : (
                     <IconPreview icon={generatedIcon} />
