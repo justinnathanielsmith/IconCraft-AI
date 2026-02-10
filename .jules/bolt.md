@@ -9,3 +9,7 @@
 ## 2026-06-03 - Static Options Allocation Bottleneck
 **Learning:** Recreating constant options arrays (e.g., via `Object.keys(Enum).map(...)`) inside the render loop causes unnecessary O(N) allocations on every re-render (e.g., keystrokes).
 **Action:** Move static data generation outside the component scope or memoize it to ensure O(1) access during render.
+
+## 2026-02-10 - Heavy Dependency Lazy Loading
+**Learning:** Importing heavy utility libraries (like `jszip`, ~100KB) at the top level increases the initial bundle size significantly, even if the feature ("Download All") is rarely used.
+**Action:** Use `import()` inside the event handler to lazy load the dependency only when the user explicitly requests the action.

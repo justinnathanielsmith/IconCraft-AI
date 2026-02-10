@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { GeneratedIcon } from '../types';
 import { Smartphone, Monitor, Loader2, Archive, Apple, Square, Zap, Copy, Check } from 'lucide-react';
-import JSZip from 'jszip';
 
 interface IconPreviewProps {
   icon: GeneratedIcon;
@@ -125,6 +124,7 @@ Thank you for using IconCraft AI!`;
   const handleDownloadAll = async () => {
     setIsZipping(true);
     try {
+      const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
       const img = new Image();
       img.src = icon.imageUrl;
