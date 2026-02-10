@@ -93,11 +93,6 @@ export const validateInputs = (prompt: string, style: string) => {
   }
 };
 
-const sanitizeInput = (text: string): string => {
-  // Replace newlines with spaces and escape double quotes to prevent prompt injection
-  return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
-};
-
 export const generateAppIcon = async (
   prompt: string, 
   style: IconStyle,
