@@ -93,7 +93,7 @@ export const validateInputs = (prompt: string, style: string) => {
   }
 };
 
-const sanitizeInput = (text: string): string => {
+const sanitizePromptInput = (text: string): string => {
   // Replace newlines with spaces and escape double quotes to prevent prompt injection
   return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
 };
@@ -107,11 +107,11 @@ export const generateAppIcon = async (
     validateInputs(prompt, String(style));
 
     // Sanitize inputs to prevent injection
-    const sanitizedPrompt = sanitizeInput(prompt);
-    const sanitizedStyle = sanitizeInput(String(style));
+    const sanitizedPrompt = sanitizePromptInput(prompt);
+    const sanitizedStyle = sanitizePromptInput(String(style));
 
     // Use sanitized style for details lookup (enum values are safe from sanitization)
-    const styleInstructions = getStyleDetails(sanitizedStyle as IconStyle);
+    const styleInstructions = getStyleDetails(style);
 
     const textPrompt = `
       Design a professional, high-end mobile application icon optimized for iOS, Android Adaptive Icons, and Android Splash Screens.

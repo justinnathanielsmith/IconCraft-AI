@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon, Key } from 'lucide-react';
+import { Loader2, Wand2, Sparkles, AlertCircle, History, Edit3, MessageSquare, ChevronDown, Upload, X, Image as ImageIcon, Key, Eye, EyeOff } from 'lucide-react';
 import { IconStyle, GeneratedIcon, GenerationState } from './types';
 import { generateAppIcon } from './services/geminiService';
 import { IconPreview } from './components/IconPreview';
@@ -56,6 +56,7 @@ const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [seedImage, setSeedImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -194,14 +195,24 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <Key size={16} className="text-slate-500" />
-            <input
-              type="password"
-              aria-label="Gemini API Key"
-              placeholder="Enter API Key"
-              className="bg-transparent border border-slate-700 rounded-full px-3 py-1 text-xs text-slate-400 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-32 focus:w-48 transition-all"
-              onChange={(e) => localStorage.setItem('GEMINI_API_KEY', e.target.value)}
-              defaultValue={localStorage.getItem('GEMINI_API_KEY') || ''}
-            />
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                aria-label="Gemini API Key"
+                placeholder="Enter API Key"
+                className="bg-transparent border border-slate-700 rounded-full pl-3 pr-8 py-1 text-xs text-slate-400 placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-32 focus:w-48 transition-all"
+                onChange={(e) => localStorage.setItem('GEMINI_API_KEY', e.target.value)}
+                defaultValue={localStorage.getItem('GEMINI_API_KEY') || ''}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 focus:text-indigo-400 outline-none transition-colors"
+                aria-label={showApiKey ? "Hide API Key" : "Show API Key"}
+              >
+                {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
           </div>
         </div>
       </header>
