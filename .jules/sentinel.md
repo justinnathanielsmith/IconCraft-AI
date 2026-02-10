@@ -7,3 +7,8 @@
 **Vulnerability:** User inputs (prompt and style description) were directly interpolated into the LLM prompt without sanitization. This allowed users to potentially inject instructions or control characters that could confuse the model or bypass generation constraints.
 **Learning:** LLM prompts are code execution environments in natural language. Unsanitized user input is akin to unsanitized SQL in a database query.
 **Prevention:** Always sanitize user inputs to remove control characters and use robust delimiters (like triple quotes) to separate user data from system instructions.
+
+## 2026-02-27 - Duplicate Sanitization and Error Leakage
+**Vulnerability:** A duplicate `sanitizeInput` function definition shadowed the intended robust version, potentially allowing prompt injection. Additionally, error objects containing sensitive headers (API keys) were logged directly to the console.
+**Learning:** Duplicate function definitions can silently disable critical security logic. Verbose error logging can inadvertently leak credentials.
+**Prevention:** Use linters to catch duplicate declarations. Always sanitize error messages (e.g., `error.message`) before logging, never log the raw error object if it might contain request details.

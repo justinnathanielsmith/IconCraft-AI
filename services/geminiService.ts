@@ -75,11 +75,18 @@ const getStyleDetails = (style: IconStyle): string => {
  */
 export const sanitizeInput = (input: string): string => {
   if (!input) return "";
-  // Remove control characters (ASCII 0-31, 127) except tab (9), newline (10), carriage return (13)
+
+  // 1. Remove control characters (ASCII 0-31, 127) except tab (9), newline (10), carriage return (13)
   let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-  // Replace triple quotes to prevent breaking out of delimiters
+  // 2. Replace newlines with spaces to prevent instruction injection via line separation
+  sanitized = sanitized.replace(/[\n\r]+/g, ' ');
+
+  // 3. Replace triple quotes to prevent breaking out of delimiters
   sanitized = sanitized.replace(/"""/g, "'''");
+
+  // 4. Escape double quotes for additional safety
+  sanitized = sanitized.replace(/"/g, '\\"');
 
   return sanitized.trim();
 };
@@ -91,11 +98,6 @@ export const validateInputs = (prompt: string, style: string) => {
   if (style.length > 100) {
     throw new Error("Style description is too long (max 100 chars)");
   }
-};
-
-const sanitizeInput = (text: string): string => {
-  // Replace newlines with spaces and escape double quotes to prevent prompt injection
-  return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
 };
 
 export const generateAppIcon = async (
@@ -177,7 +179,8 @@ export const generateAppIcon = async (
 
     throw new Error("No image data found in response");
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    // Log only the message to avoid leaking sensitive data (like API keys in request headers)
+    console.error("Gemini API Error:", error instanceof Error ? error.message : String(error));
     throw error;
   }
 };
@@ -214,7 +217,7 @@ export const editIconBackground = async (
     }
     throw new Error("Editing failed");
   } catch (error) {
-    console.error("Gemini Edit Error:", error);
+    console.error("Gemini Edit Error:", error instanceof Error ? error.message : String(error));
     throw error;
   }
 };
