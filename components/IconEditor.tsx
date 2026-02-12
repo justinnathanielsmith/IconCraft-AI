@@ -113,9 +113,10 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
     let minX = canvas.width, minY = canvas.height, maxX = 0, maxY = 0;
     let found = false;
 
+    // Optimization: Use incremental index to avoid repeated multiplication
+    let index = 0;
     for (let y = 0; y < canvas.height; y++) {
       for (let x = 0; x < canvas.width; x++) {
-        const index = (y * canvas.width + x) * 4;
         const alpha = data[index + 3];
         const r = data[index];
         const g = data[index + 1];
@@ -129,6 +130,7 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
           if (y > maxY) maxY = y;
           found = true;
         }
+        index += 4;
       }
     }
 
