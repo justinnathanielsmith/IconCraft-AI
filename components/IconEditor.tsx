@@ -17,7 +17,14 @@ interface EditorState {
 }
 
 // Pre-define color presets to avoid recreation on every render
-const PRESETS = ['#0f172a', '#ffffff', '#000000', '#6366f1', '#10b981', '#f43f5e'];
+const PRESETS = [
+  { color: '#0f172a', name: 'Dark Slate' },
+  { color: '#ffffff', name: 'White' },
+  { color: '#000000', name: 'Black' },
+  { color: '#6366f1', name: 'Indigo' },
+  { color: '#10b981', name: 'Emerald' },
+  { color: '#f43f5e', name: 'Rose' },
+];
 
 export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onSave, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -282,13 +289,14 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
             </div>
           </div>
           <div className="flex gap-2 justify-between">
-            {PRESETS.map(color => (
+            {PRESETS.map((preset) => (
               <button
-                key={color}
-                onClick={() => updateState({ bgColor: color })}
-                className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${currentState.bgColor === color ? 'border-white scale-110 shadow-lg shadow-white/10' : 'border-transparent'}`}
-                style={{ backgroundColor: color }}
-                aria-label={`Set background color to ${color}`}
+                key={preset.color}
+                onClick={() => updateState({ bgColor: preset.color })}
+                className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${currentState.bgColor === preset.color ? 'border-white scale-110 shadow-lg shadow-white/10' : 'border-transparent'}`}
+                style={{ backgroundColor: preset.color }}
+                aria-label={`Set background color to ${preset.name}`}
+                title={preset.name}
               />
             ))}
           </div>
