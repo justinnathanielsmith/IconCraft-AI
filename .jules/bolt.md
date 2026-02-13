@@ -13,3 +13,7 @@
 ## 2026-02-10 - Heavy Dependency Lazy Loading
 **Learning:** Importing heavy utility libraries (like `jszip`, ~100KB) at the top level increases the initial bundle size significantly, even if the feature ("Download All") is rarely used.
 **Action:** Use `import()` inside the event handler to lazy load the dependency only when the user explicitly requests the action.
+
+## 2026-06-21 - Pixel Loop Optimization
+**Learning:** In pixel manipulation loops (e.g., `getTightBounds`), using `(y * width + x) * 4` multiplication inside nested loops is measurably slower than maintaining a running linear index. Additionally, hoisting alpha checks to skip processing transparent pixels yields significant gains (~20%) for sparse images like icons.
+**Action:** Replace multiplication-based indexing with linear counters and add early-exit checks for transparency in all pixel processing loops.

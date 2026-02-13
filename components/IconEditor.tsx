@@ -113,22 +113,28 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
     let minX = canvas.width, minY = canvas.height, maxX = 0, maxY = 0;
     let found = false;
 
+    let index = 0;
     for (let y = 0; y < canvas.height; y++) {
       for (let x = 0; x < canvas.width; x++) {
-        const index = (y * canvas.width + x) * 4;
+        // Optimized pixel indexing and alpha check hoisting
         const alpha = data[index + 3];
-        const r = data[index];
-        const g = data[index + 1];
-        const b = data[index + 2];
 
-        const isBackground = r > 250 && g > 250 && b > 250 && alpha > 250;
-        if (alpha > 10 && !isBackground) {
-          if (x < minX) minX = x;
-          if (y < minY) minY = y;
-          if (x > maxX) maxX = x;
-          if (y > maxY) maxY = y;
-          found = true;
+        if (alpha > 10) {
+          const r = data[index];
+          const g = data[index + 1];
+          const b = data[index + 2];
+
+          const isBackground = r > 250 && g > 250 && b > 250 && alpha > 250;
+
+          if (!isBackground) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            found = true;
+          }
         }
+        index += 4;
       }
     }
 
