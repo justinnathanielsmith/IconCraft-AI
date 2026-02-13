@@ -72,6 +72,12 @@ const getStyleDetails = (style: IconStyle): string => {
 /**
  * Sanitizes input to prevent control character injection and prompt injection issues.
  * Replaces triple quotes to maintain prompt delimiter integrity.
+ *
+ * 🛡️ Sentinel Security Check:
+ * - Removes control characters (prevents invisible instruction injection)
+ * - Normalizes newlines (prevents line-based prompt splitting)
+ * - Replaces triple quotes (prevents breaking out of typical LLM prompt delimiters)
+ * - Escapes double quotes (standard JSON safety)
  */
 export const sanitizeInput = (input: string): string => {
   if (!input) return "";
@@ -100,11 +106,6 @@ export const validateInputs = (prompt: string, style: string) => {
   }
 };
 
-const sanitizePromptInput = (text: string): string => {
-  // Replace newlines with spaces and escape double quotes to prevent prompt injection
-  return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
-};
-
 export const generateAppIcon = async (
   prompt: string, 
   style: IconStyle,
@@ -114,8 +115,9 @@ export const generateAppIcon = async (
     validateInputs(prompt, String(style));
 
     // Sanitize inputs to prevent injection
-    const sanitizedPrompt = sanitizePromptInput(prompt);
-    const sanitizedStyle = sanitizePromptInput(String(style));
+    // 🛡️ Sentinel: Using robust sanitizeInput instead of weak local helper
+    const sanitizedPrompt = sanitizeInput(prompt);
+    const sanitizedStyle = sanitizeInput(String(style));
 
     // Use sanitized style for details lookup (enum values are safe from sanitization)
     const styleInstructions = getStyleDetails(style);
