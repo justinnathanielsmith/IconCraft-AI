@@ -13,3 +13,7 @@
 ## 2026-02-10 - Heavy Dependency Lazy Loading
 **Learning:** Importing heavy utility libraries (like `jszip`, ~100KB) at the top level increases the initial bundle size significantly, even if the feature ("Download All") is rarely used.
 **Action:** Use `import()` inside the event handler to lazy load the dependency only when the user explicitly requests the action.
+
+## 2026-10-27 - Pixel Scanline Optimization
+**Learning:** Naive nested loops for pixel scanning (e.g. `getTightBounds`) perform redundant checks on internal pixels of solid shapes and waste cycles on transparent pixels.
+**Action:** Implement a dual-scanline strategy: scan inward from left/right edges to find bounds, skipping internal pixels. Check alpha channel first to skip expensive RGB reads.
