@@ -110,24 +110,62 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
-    let minX = canvas.width, minY = canvas.height, maxX = 0, maxY = 0;
+    let minX = canvas.width, maxX = 0;
+    let minY = -1, maxY = -1;
     let found = false;
 
+    // Optimized scanline algorithm:
+    // 1. Skips multiplication in inner loops by using pre-calculated offsets
+    // 2. Checks alpha first to skip unnecessary RGB reads
+    // 3. Scans from both left and right edges to skip internal pixels of solid shapes
     for (let y = 0; y < canvas.height; y++) {
-      for (let x = 0; x < canvas.width; x++) {
-        const index = (y * canvas.width + x) * 4;
-        const alpha = data[index + 3];
-        const r = data[index];
-        const g = data[index + 1];
-        const b = data[index + 2];
+      const rowOffset = y * canvas.width * 4;
+      let rowHasContent = false;
 
-        const isBackground = r > 250 && g > 250 && b > 250 && alpha > 250;
-        if (alpha > 10 && !isBackground) {
-          if (x < minX) minX = x;
-          if (y < minY) minY = y;
-          if (x > maxX) maxX = x;
-          if (y > maxY) maxY = y;
-          found = true;
+      // Scan from left
+      for (let x = 0; x < canvas.width; x++) {
+        const index = rowOffset + (x * 4);
+        const alpha = data[index + 3];
+
+        if (alpha > 10) {
+          let isContent = true;
+          // Only check for white background if alpha is high enough
+          if (alpha > 250) {
+            if (data[index] > 250 && data[index + 1] > 250 && data[index + 2] > 250) {
+              isContent = false;
+            }
+          }
+
+          if (isContent) {
+            if (x < minX) minX = x;
+            if (minY === -1) minY = y;
+            maxY = y;
+            found = true;
+            rowHasContent = true;
+            break; // Stop scanning this row from left
+          }
+        }
+      }
+
+      if (rowHasContent) {
+        // Scan from right to find maxX for this row
+        for (let x = canvas.width - 1; x >= 0; x--) {
+          const index = rowOffset + (x * 4);
+          const alpha = data[index + 3];
+
+          if (alpha > 10) {
+            let isContent = true;
+            if (alpha > 250) {
+              if (data[index] > 250 && data[index + 1] > 250 && data[index + 2] > 250) {
+                isContent = false;
+              }
+            }
+
+            if (isContent) {
+              if (x > maxX) maxX = x;
+              break; // Stop scanning this row from right
+            }
+          }
         }
       }
     }
