@@ -12,3 +12,8 @@
 **Vulnerability:** A duplicate `sanitizeInput` function definition shadowed the intended robust version, potentially allowing prompt injection. Additionally, error objects containing sensitive headers (API keys) were logged directly to the console.
 **Learning:** Duplicate function definitions can silently disable critical security logic. Verbose error logging can inadvertently leak credentials.
 **Prevention:** Use linters to catch duplicate declarations. Always sanitize error messages (e.g., `error.message`) before logging, never log the raw error object if it might contain request details.
+
+## 2026-03-03 - Weak Sanitization Function Usage
+**Vulnerability:** The application used a weak `sanitizePromptInput` function (handling only quotes and newlines) instead of the available, robust `sanitizeInput` (handling control chars and triple quotes), leaving it vulnerable to sophisticated prompt injection attacks.
+**Learning:** Having a robust security utility is useless if developers continue to use ad-hoc, weaker implementations. Codebases should enforce a "single source of truth" for security primitives.
+**Prevention:** Remove ad-hoc implementations immediately when a standardized utility is introduced. Use linting rules or code reviews to enforce the usage of the approved security functions.
