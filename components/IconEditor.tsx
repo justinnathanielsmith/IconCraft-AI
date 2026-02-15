@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Scissors, Maximize, Eraser, Check, X, RefreshCw, Palette, Crop, Sun, Contrast, Droplets, Undo2, Redo2 } from 'lucide-react';
+import { Scissors, Maximize, Eraser, Check, X, RefreshCw, Palette, Crop, Sun, Contrast, Droplets, Undo2, Redo2, RotateCcw, AlertCircle } from 'lucide-react';
 import { editIconBackground } from '../services/geminiService';
 
 interface IconEditorProps {
@@ -21,6 +21,7 @@ const PRESETS = ['#0f172a', '#ffffff', '#000000', '#6366f1', '#10b981', '#f43f5e
 
 export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onSave, onCancel }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Current active state
   const [currentState, setCurrentState] = useState<EditorState>({
@@ -149,7 +150,7 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
 
     const bounds = getTightBounds(img);
     if (!bounds) {
-      alert("Could not detect clear icon boundaries.");
+      setError("Could not detect clear icon boundaries.");
       return;
     }
 
@@ -174,12 +175,13 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
 
   const handleRemoveBackground = async () => {
     setIsProcessing(true);
+    setError(null);
     try {
       const result = await editIconBackground(imageUrl);
       onSave(result);
     } catch (err) {
       console.error(err);
-      alert("Background removal failed. Please try again.");
+      setError("Background removal failed. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -239,6 +241,18 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-center justify-between gap-3 text-red-400 text-sm animate-fade-in" role="alert">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+          <button onClick={() => setError(null)} className="hover:text-red-300">
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       <div 
         className="relative aspect-square w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-slate-800 flex items-center justify-center transition-colors duration-300"
@@ -412,7 +426,7 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
           }}
           className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-slate-900 border border-slate-800 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-300 transition-all"
         >
-          <Maximize size={14} />
+          <RotateCcw size={14} />
           Reset All Adjustments
         </button>
       </div>
