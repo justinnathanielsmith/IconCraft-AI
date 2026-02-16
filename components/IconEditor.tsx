@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Scissors, Maximize, Eraser, Check, X, RefreshCw, Palette, Crop, Sun, Contrast, Droplets, Undo2, Redo2 } from 'lucide-react';
+import { Scissors, Maximize, Eraser, Check, X, RefreshCw, Palette, Crop, Sun, Contrast, Droplets, Undo2, Redo2, RotateCcw } from 'lucide-react';
 import { editIconBackground } from '../services/geminiService';
 
 interface IconEditorProps {
@@ -223,6 +223,7 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
             disabled={historyIndex <= 0}
             className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 disabled:opacity-30 transition-colors"
             title="Undo (Ctrl+Z)"
+            aria-label="Undo"
           >
             <Undo2 size={18} />
           </button>
@@ -231,10 +232,15 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
             disabled={historyIndex >= history.length - 1}
             className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 disabled:opacity-30 transition-colors"
             title="Redo (Ctrl+Y)"
+            aria-label="Redo"
           >
             <Redo2 size={18} />
           </button>
-          <button onClick={onCancel} className="p-2 text-slate-500 hover:text-white transition-colors">
+          <button
+            onClick={onCancel}
+            className="p-2 text-slate-500 hover:text-white transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+            aria-label="Close editor"
+          >
             <X size={20} />
           </button>
         </div>
@@ -412,7 +418,7 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
           }}
           className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-slate-900 border border-slate-800 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-300 transition-all"
         >
-          <Maximize size={14} />
+          <RotateCcw size={14} />
           Reset All Adjustments
         </button>
       </div>
