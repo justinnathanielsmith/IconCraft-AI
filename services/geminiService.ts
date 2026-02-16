@@ -82,10 +82,13 @@ export const sanitizeInput = (input: string): string => {
   // 2. Replace newlines with spaces to prevent instruction injection via line separation
   sanitized = sanitized.replace(/[\n\r]+/g, ' ');
 
-  // 3. Replace triple quotes to prevent breaking out of delimiters
+  // 3. Escape backslashes first to prevent escaping the closing delimiter
+  sanitized = sanitized.replace(/\\/g, '\\\\');
+
+  // 4. Replace triple quotes to prevent breaking out of delimiters
   sanitized = sanitized.replace(/"""/g, "'''");
 
-  // 4. Escape double quotes for additional safety
+  // 5. Escape double quotes for additional safety
   sanitized = sanitized.replace(/"/g, '\\"');
 
   return sanitized.trim();
@@ -100,11 +103,6 @@ export const validateInputs = (prompt: string, style: string) => {
   }
 };
 
-const sanitizePromptInput = (text: string): string => {
-  // Replace newlines with spaces and escape double quotes to prevent prompt injection
-  return text.replace(/[\n\r]+/g, ' ').replace(/"/g, '\\"').trim();
-};
-
 export const generateAppIcon = async (
   prompt: string, 
   style: IconStyle,
@@ -114,8 +112,8 @@ export const generateAppIcon = async (
     validateInputs(prompt, String(style));
 
     // Sanitize inputs to prevent injection
-    const sanitizedPrompt = sanitizePromptInput(prompt);
-    const sanitizedStyle = sanitizePromptInput(String(style));
+    const sanitizedPrompt = sanitizeInput(prompt);
+    const sanitizedStyle = sanitizeInput(String(style));
 
     // Use sanitized style for details lookup (enum values are safe from sanitization)
     const styleInstructions = getStyleDetails(style);
