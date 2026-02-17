@@ -82,10 +82,13 @@ export const sanitizeInput = (input: string): string => {
   // 2. Replace newlines with spaces to prevent instruction injection via line separation
   sanitized = sanitized.replace(/[\n\r]+/g, ' ');
 
-  // 3. Replace triple quotes to prevent breaking out of delimiters
+  // 3. Escape backslashes first to prevent escaping the closing delimiter
+  sanitized = sanitized.replace(/\\/g, '\\\\');
+
+  // 4. Replace triple quotes to prevent breaking out of delimiters
   sanitized = sanitized.replace(/"""/g, "'''");
 
-  // 4. Escape double quotes for additional safety
+  // 5. Escape double quotes for additional safety
   sanitized = sanitized.replace(/"/g, '\\"');
 
   return sanitized.trim();
