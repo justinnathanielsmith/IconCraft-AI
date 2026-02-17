@@ -5,3 +5,7 @@
 ## 2025-05-02 - Form Label Association and Interactive Element Names
 **Learning:** Key form inputs (Prompt, Style, Instructions) relied on implicit or visual-only labeling, and interactive elements like color presets and sliders lacked accessible names, making them difficult for screen reader users to navigate and understand.
 **Action:** Enforce strict `htmlFor`/`id` association for all form labels and ensure all interactive elements (especially icon-only buttons or sliders) have descriptive `aria-label`s.
+
+## 2025-05-02 - Slider Precision and Reset UX
+**Learning:** Standard range sliders lack precision for returning to default values, which can be frustrating for users making fine adjustments (like brightness/contrast).
+**Action:** When using range sliders for image adjustments, always include a way to reset the specific parameter to its default value (e.g., a small reset button next to the value) to improve control and user confidence.

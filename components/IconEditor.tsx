@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Scissors, Maximize, Eraser, Check, X, RefreshCw, Palette, Crop, Sun, Contrast, Droplets, Undo2, Redo2 } from 'lucide-react';
+import { Scissors, Maximize, Eraser, Check, X, RefreshCw, Palette, Crop, Sun, Contrast, Droplets, Undo2, Redo2, RotateCcw } from 'lucide-react';
 import { editIconBackground } from '../services/geminiService';
 
 interface IconEditorProps {
@@ -300,7 +300,19 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
               <label htmlFor="brightness-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Sun size={14} /> Brightness
               </label>
-              <span className="text-[10px] text-slate-400">{currentState.brightness}%</span>
+              <div className="flex items-center gap-2">
+                {currentState.brightness !== 100 && (
+                  <button
+                    onClick={() => updateState({ brightness: 100 })}
+                    className="text-slate-500 hover:text-indigo-400 transition-colors"
+                    title="Reset brightness"
+                    aria-label="Reset brightness"
+                  >
+                    <RotateCcw size={12} />
+                  </button>
+                )}
+                <span className="text-[10px] text-slate-400 w-8 text-right">{currentState.brightness}%</span>
+              </div>
             </div>
             <input
               id="brightness-slider"
@@ -321,7 +333,19 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
               <label htmlFor="contrast-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Contrast size={14} /> Contrast
               </label>
-              <span className="text-[10px] text-slate-400">{currentState.contrast}%</span>
+              <div className="flex items-center gap-2">
+                {currentState.contrast !== 100 && (
+                  <button
+                    onClick={() => updateState({ contrast: 100 })}
+                    className="text-slate-500 hover:text-indigo-400 transition-colors"
+                    title="Reset contrast"
+                    aria-label="Reset contrast"
+                  >
+                    <RotateCcw size={12} />
+                  </button>
+                )}
+                <span className="text-[10px] text-slate-400 w-8 text-right">{currentState.contrast}%</span>
+              </div>
             </div>
             <input
               id="contrast-slider"
@@ -342,7 +366,19 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
               <label htmlFor="saturation-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Droplets size={14} /> Saturation
               </label>
-              <span className="text-[10px] text-slate-400">{currentState.saturation}%</span>
+              <div className="flex items-center gap-2">
+                {currentState.saturation !== 100 && (
+                  <button
+                    onClick={() => updateState({ saturation: 100 })}
+                    className="text-slate-500 hover:text-indigo-400 transition-colors"
+                    title="Reset saturation"
+                    aria-label="Reset saturation"
+                  >
+                    <RotateCcw size={12} />
+                  </button>
+                )}
+                <span className="text-[10px] text-slate-400 w-8 text-right">{currentState.saturation}%</span>
+              </div>
             </div>
             <input
               id="saturation-slider"
@@ -363,7 +399,19 @@ export const IconEditor: React.FC<IconEditorProps> = React.memo(({ imageUrl, onS
               <label htmlFor="zoom-slider" className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <Maximize size={14} /> Zoom
               </label>
-              <span className="text-[10px] text-slate-400">{currentState.zoom.toFixed(2)}x</span>
+              <div className="flex items-center gap-2">
+                {currentState.zoom !== 1 && (
+                  <button
+                    onClick={() => updateState({ zoom: 1 })}
+                    className="text-slate-500 hover:text-indigo-400 transition-colors"
+                    title="Reset zoom"
+                    aria-label="Reset zoom"
+                  >
+                    <RotateCcw size={12} />
+                  </button>
+                )}
+                <span className="text-[10px] text-slate-400 w-10 text-right">{currentState.zoom.toFixed(2)}x</span>
+              </div>
             </div>
             <input
               id="zoom-slider"
